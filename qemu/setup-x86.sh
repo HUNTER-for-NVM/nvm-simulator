@@ -2,6 +2,8 @@
 # Reference: https://blog.csdn.net/weixin_44465434/article/details/121194613?spm=1001.2014.3001.5502
 # Reference: https://seekstar.github.io/2020/12/28/%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85linux%E5%86%85%E6%A0%B8/
 
+set -e
+
 abs_path=$(cd "$(dirname "$0")"; pwd)
 download_path=$abs_path/downloads
 builds_path=$abs_path/builds
@@ -22,7 +24,7 @@ function install_QEMU () {
 }
 
 function config_and_build_kernel () {
-    cd "$download_path"/Kernel/linux-5.18-rc4 || exit
+    cd "$download_path"/Kernel/linux-5.1 || exit
     if [ ! -f ".config" ]; then
         make ARCH=x86_64 defconfig
 
@@ -115,21 +117,21 @@ function craft_root_fs () {
 
 function download_kernel() {
     mkdir -p "$download_path"/Kernel
-    if [ ! -d "$download_path"/Kernel/linux-5.18-rc4 ]; then    
+    if [ ! -d "$download_path"/Kernel/linux-5.1 ]; then    
         cd "$download_path"/Kernel || exit
-        wget https://github.com/torvalds/linux/archive/refs/tags/v5.18-rc4.tar.gz
-        tar -zxvf v5.18-rc4.tar.gz
+        wget https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-5.1.tar.gz
+        tar -zxvf linux-5.1.tar.gz
         cd - || exit
     fi
 }
 
 function start_qemu () {
-    bash "$scripts_path"/start.sh "$download_path"/Kernel/linux-5.18-rc4/arch/x86_64/boot/bzImage "$download_path"/RootFS/initramfs.cpio "$1"
+    bash "$scripts_path"/start.sh "$download_path"/Kernel/linux-5.1/arch/x86_64/boot/bzImage "$download_path"/RootFS/initramfs.cpio "$1"
 }
 
 function usage () {
     echo "Usage: $0 -d -g -r [k|rf|all]"
-    echo " -d: Download QEMU and linux-5.18-rc4"
+    echo " -d: Download QEMU and linux-5.1"
     echo " -g: QEMU GDB ON"
     echo " -r: [k|rf|all]"
     echo "  [k]:   build kernel"
@@ -144,7 +146,7 @@ while getopts "dr:gh" arg #选项后面的冒号表示该选项需要参数
 do
     case $arg in
         d)
-        echo "Download QEMU and linux-5.18-rc4" #参数存在$OPTARG中
+        echo "Download QEMU and linux-5.1" #参数存在$OPTARG中
         install_QEMU
         download_kernel
         ;;
